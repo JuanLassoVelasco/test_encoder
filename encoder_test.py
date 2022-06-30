@@ -4,6 +4,7 @@ from smbus import SMBus
 import time
 from matplotlib import pyplot as plt
 import numpy as np
+import time
 
 ENCODER_MAX = 16383
 ENCODER_MIN = 0
@@ -62,20 +63,27 @@ encoder = EncoderAMS(i2cBus, i2cAddress, angDatFrontAddress, angDatBackAddress)
 if __name__ == '__main__':
     x = 0
     try:
+        startTime = time.time()
         while True:
             xList.append(x)
 
             encodeAngle = encoder.getAngle()
 
             jointAngles.append(encodeAngle)
+            # curTime = time.clock_gettime_ns(time.CLOCK_REALTIME)
+            curTime = time.time()
             print(str(encodeAngle) + " " + str(x))
             x += 1
     except KeyboardInterrupt:
         if len(jointAngles) < len(xList):
             jointAngles.append(encodeAngle)
+
+        endTime = time.time()
+
+        sampleRate = x/(endTime - startTime)
         
         plt.plot(xList, jointAngles)
         plt.show()
-        print("End of test")
+        print("Sampling Rate for this run: " + str(sampleRate) + " samples per second")
 
 
